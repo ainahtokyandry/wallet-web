@@ -1,0 +1,21 @@
+type User {
+	id: ID!
+	email: String!
+	password: Boolean!
+}
+
+type Query {
+	users: [User]
+	user(id: ID!): User
+}
+
+type Token {
+	token: String
+}
+
+type Mutation {
+	createUser(email: String, password: String): User
+	userLogin(email: String, password: String): Token!
+	# updateTodo(id: ID!, done: Boolean!): Todo!
+	# deleteTodo(id: ID!): Todo!
+}
