@@ -8,6 +8,7 @@ import User from "@/types/user";
 import bcrypt from "bcrypt";
 import { GraphQLError } from "graphql";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import jwt from "jsonwebtoken";
 
 const typeDefs = importSchema("graphql/schema.graphql");
 const prisma = new PrismaClient();
@@ -27,12 +28,12 @@ const resolvers = {
 	},
 	Mutation: {
 		createUser: async (_: any, args: User) => {
-			const SALTROUND = process.env.SALTROUND;
-			const salt = await bcrypt.genSalt(Number(SALTROUND));
+			const SALTROUND = Number(process.env.SALTROUND);
 			const password = await bcrypt.hash(
 				`wallet.ata user ${args.password}`,
-				salt
+				SALTROUND
 			);
+
 			try {
 				return await prisma.user.create({
 					data: {
@@ -45,16 +46,25 @@ const resolvers = {
 			}
 		},
 		userLogin: async (_: any, args: User) => {
-			// const user = await prisma.user.findUnique({
-			// 	where: {
-			// 		email: args.email,
-			// 	},
-			// });
-			// if (!user) {
-			// 	throw new GraphQLError("No user found");
-			// }
+			const user = await prisma.user.findUnique({
+				where: { email: args.email },
+			});
+			if (!user) {
+				throw new GraphQLError("No user found");
+			}
+			const isSame = await bcrypt.compare(
+				`wallet.ata user ${args.password}`,
+				user.password
+			);
 
-			return { token: "test" };
+			if (isSame) {
+				return jwt.sign(
+					{ id: user.id, email: user.email },
+					`${process.env.JWT_AUTH}`
+				);
+			} else {
+				throw new GraphQLError("Wrong password");
+			}
 		},
 		// updateTodo: async (_parent: any, args: { id: any; done: any }) => {
 		// 	return await prisma.todo.update({

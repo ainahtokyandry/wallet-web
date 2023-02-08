@@ -20,9 +20,7 @@ const CREATE_USER = gql`
 
 const LOGIN = gql`
 	mutation ($email: String, $password: String) {
-		userLogin(email: $email, password: $password) {
-			token
-		}
+		userLogin(email: $email, password: $password)
 	}
 `;
 const UPDATE_TODO = gql`

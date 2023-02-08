@@ -9,13 +9,9 @@ type Query {
 	user(id: ID!): User
 }
 
-type Token {
-	token: String
-}
-
 type Mutation {
 	createUser(email: String, password: String): User
-	userLogin(email: String, password: String): Token!
+	userLogin(email: String, password: String): String!
 	# updateTodo(id: ID!, done: Boolean!): Todo!
 	# deleteTodo(id: ID!): Todo!
 }
